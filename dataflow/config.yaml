@@ -1,0 +1,5 @@
+project_id: "yt-comments-495004"
+bucket: "yt-raw-comments-yt-comments-495004"
+pubsub_topic: "yt-comments-topic"
+bq_dataset: "youtube_comments"
+bq_table: "comments"

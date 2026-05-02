@@ -11,113 +11,66 @@ resource "google_service_account" "cf_sa" {
   project      = var.project_id
 }
 
-# Assign all required roles
-resource "google_project_iam_member" "cf_sa_bigquery_admin" {
-  project = var.project_id
-  role    = "roles/bigquery.admin"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
+locals {
+  cf_sa_roles = [
+    "roles/bigquery.admin",
+    "roles/bigquery.dataEditor",
+    "roles/bigquery.jobUser",
+    "roles/bigquery.user",
+    "roles/cloudfunctions.admin",
+    "roles/cloudfunctions.invoker",
+    "roles/composer.worker",
+    "roles/dataflow.developer",
+    "roles/dataflow.worker",
+    "roles/pubsub.editor",
+    "roles/pubsub.publisher",
+    "roles/pubsub.subscriber",
+    "roles/iam.serviceAccountUser",
+    "roles/storage.objectAdmin",
+    "roles/composer.admin",
+    "roles/container.admin",
+    "roles/compute.networkAdmin",
+    "roles/iam.serviceAccountActor",
+  ]
+
+  cloudbuild_roles = [
+    "roles/iam.serviceAccountUser",
+    "roles/logging.logWriter",
+    "roles/artifactregistry.admin",
+    "roles/storage.objectViewer",
+    "roles/cloudbuild.builds.builder",
+  ]
+
+  compute_default_roles = [
+    "roles/storage.objectAdmin",
+    "roles/artifactregistry.writer",
+    "roles/logging.logWriter",
+    "roles/cloudbuild.builds.builder",
+    "roles/dataflow.worker",
+    "roles/pubsub.editor",
+    "roles/bigquery.dataEditor",
+  ]
 }
 
-resource "google_project_iam_member" "cf_sa_bigquery_data_editor" {
-  project = var.project_id
-  role    = "roles/bigquery.dataEditor"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
+resource "google_project_iam_member" "cf_sa_roles" {
+  for_each = toset(local.cf_sa_roles)
+  project  = var.project_id
+  role     = each.key
+  member   = "serviceAccount:${google_service_account.cf_sa.email}"
 }
 
-resource "google_project_iam_member" "cf_sa_bigquery_job_user" {
-  project = var.project_id
-  role    = "roles/bigquery.jobUser"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
+resource "google_project_iam_member" "cloudbuild_roles" {
+  for_each = toset(local.cloudbuild_roles)
+  project  = var.project_id
+  role     = each.key
+  member   = "serviceAccount:${data.google_project.current.number}@cloudbuild.gserviceaccount.com"
 }
 
-resource "google_project_iam_member" "cf_sa_bigquery_user" {
-  project = var.project_id
-  role    = "roles/bigquery.user"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_cloudfunctions_admin" {
-  project = var.project_id
-  role    = "roles/cloudfunctions.admin"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_cloudfunctions_invoker" {
-  project = var.project_id
-  role    = "roles/cloudfunctions.invoker"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_composer_worker" {
-  project = var.project_id
-  role    = "roles/composer.worker"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_dataflow_developer" {
-  project = var.project_id
-  role    = "roles/dataflow.developer"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_dataflow_worker" {
-  project = var.project_id
-  role    = "roles/dataflow.worker"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_pubsub_editor" {
-  project = var.project_id
-  role    = "roles/pubsub.editor"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_pubsub_publisher" {
-  project = var.project_id
-  role    = "roles/pubsub.publisher"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_pubsub_subscriber" {
-  project = var.project_id
-  role    = "roles/pubsub.subscriber"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_service_account_user" {
-  project = var.project_id
-  role    = "roles/iam.serviceAccountUser"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_storage_object_admin" {
-  project = var.project_id
-  role    = "roles/storage.objectAdmin"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_composer_admin" {
-  project = var.project_id
-  role    = "roles/composer.admin"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_container_admin" {
-  project = var.project_id
-  role    = "roles/container.admin"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_network_admin" {
-  project = var.project_id
-  role    = "roles/compute.networkAdmin"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
-}
-
-resource "google_project_iam_member" "cf_sa_service_account_actor" {
-  project = var.project_id
-  role    = "roles/iam.serviceAccountActor"
-  member  = "serviceAccount:${google_service_account.cf_sa.email}"
+resource "google_project_iam_member" "compute_default_roles" {
+  for_each = toset(local.compute_default_roles)
+  project  = var.project_id
+  role     = each.key
+  member   = "serviceAccount:${data.google_project.current.number}-compute@developer.gserviceaccount.com"
 }
 
 resource "google_project_iam_member" "composer_service_agent_ext" {
