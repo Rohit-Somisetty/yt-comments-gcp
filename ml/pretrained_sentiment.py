@@ -29,8 +29,7 @@ def main():
         })
 
     # Write results back to BigQuery
-    table_id = "yt-comments-495004init
-    .youtube_comments.sentiment"
+    table_id = "yt-comments-495004.youtube_comments.sentiment"
     bq_client.insert_rows_json(table_id, rows_to_insert)
     print(f"Inserted {len(rows_to_insert)} rows with sentiment scores")
 
