@@ -2,3 +2,4 @@
 tfplan
 terraform.tfstate
 service-account-key.json
+config.yaml
