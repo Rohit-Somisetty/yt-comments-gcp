@@ -1,0 +1,31 @@
+# Go to home and create project folder
+cd ~
+mkdir yt-comments-gcp && cd yt-comments-gcp
+
+# Create all directories (including ml to avoid missing dir error)
+mkdir -p ansible/group_vars ansible/playbooks \
+         app dags dataflow ml \
+         infra/envs/dev \
+         infra/modules/{bigquery,composer,iam,pubsub,storage}
+
+# Create all necessary files
+touch ansible/group_vars/all.yml \
+      ansible/playbooks/deploy_cf.yml \
+      ansible/playbooks/deploy_dag.yml \
+      ansible/playbooks/deploy_dataflow.yml \
+      ansible/playbooks/run_pretrained_sentiment.yml \
+      app/config.yaml app/main.py app/requirements.txt \
+      dags/yt_pipeline_dag.py \
+      dataflow/config.yaml dataflow/pipeline.py dataflow/requirements.txt dataflow/setup.py \
+      infra/backend.tf \
+      infra/envs/dev/main.tf infra/envs/dev/outputs.tf infra/envs/dev/variables.tf \
+      infra/modules/bigquery/main.tf \
+      infra/modules/composer/main.tf \
+      infra/modules/iam/main.tf \
+      infra/modules/pubsub/main.tf \
+      infra/modules/storage/main.tf \
+      infra/providers.tf \
+      Jenkinsfile \
+      .gitignore \
+      ml/pretrained_sentiment.py \
+      README.md
